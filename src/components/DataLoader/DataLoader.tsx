@@ -1,5 +1,4 @@
 import React from 'react'
-import { css } from '@emotion/core'
 import axios from 'axios'
 
 
@@ -23,7 +22,7 @@ interface IState {
 }
 
 interface IProps {
-    callback: Function
+    callback: ((persons: IPerson[]) => void)
 }
 
 class DataLoader extends React.Component<IProps, IState> {
@@ -37,7 +36,7 @@ class DataLoader extends React.Component<IProps, IState> {
 
     componentDidMount() {
         axios.get("https://ares-fine-react-test.firebaseio.com/persons.json").then((response) => {
-            let persons: IPerson[] = response.data.map(((p: any) => {
+            const persons: IPerson[] = response.data.map(((p: any) => {
                 const person: IPerson = {
                     id: p._id,
                     about: p.about,
@@ -51,10 +50,18 @@ class DataLoader extends React.Component<IProps, IState> {
                 return person
             }))
             this.setState({ persons: persons })
-            console.log("persons", persons)
         })
     }
 
+    shouldComponentUpdate() {
+        return this.state.persons.length < 1
+    }
+
+    componentDidUpdate() {
+        if (this.state.persons.length > 0) {
+            this.props.callback(this.state.persons)
+        }
+    }
 
     render() {
         return (
