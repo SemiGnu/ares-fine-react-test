@@ -5,10 +5,7 @@ import axios from 'axios'
 
 export interface IPerson {
     id: string
-    name: {
-        first: string,
-        last: string
-    }
+    name: string
     company: string
     email: string
     about: string
@@ -40,7 +37,7 @@ class DataLoader extends React.Component<IProps, IState> {
                 const person: IPerson = {
                     id: p._id,
                     about: p.about,
-                    name: p.name,
+                    name: p.name.first + " " + p.name.last,
                     company: p.company,
                     age: p.age,
                     registered: new Date(p.registered),

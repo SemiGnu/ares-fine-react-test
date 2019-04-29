@@ -28,7 +28,7 @@ class Layout extends React.Component<IProps, IState> {
         const tableData: ITableData = {
             data: this.state.persons,
             headers: [
-                {name: 'Name', value: 'name.last', weight: 1},
+                {name: 'Name', value: 'name', weight: 1},
                 {name: 'Age', value: 'age', weight: 1},
                 {name: 'Company', value: 'company', weight: 1},
             ]
