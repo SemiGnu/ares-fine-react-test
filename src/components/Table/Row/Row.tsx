@@ -1,15 +1,16 @@
 /** @jsx jsx */ import { jsx } from '@emotion/core'
 import React from 'react'
 import { css } from '@emotion/core'
-import { ITableHeader } from '../Table'
+import { ITableHeader, IExpandable } from '../Table'
 
 interface IState {
-
+    open: boolean
 }
 
 interface IProps {
     data: any
     headers: ITableHeader[]
+    expandables: IExpandable[]
 }
 
 class Row extends React.Component<IProps, IState> {
@@ -17,7 +18,7 @@ class Row extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props)
         this.state = {
-
+            open: false
         }
     }
 
@@ -25,23 +26,34 @@ class Row extends React.Component<IProps, IState> {
     display: flex;
     flex-direction: row;
     align-content:left;
-    width: 100%;
+        justify-content: space-between
+        width: 100%;
 `
     cellCss = css`
     font-weight: 400;
 `
-
+    toggleOpen = () => {
+        this.setState({ open: !this.state.open })
+    }
 
     render() {
-        const cells = this.props.headers.map(h => 
+        const cells = this.props.headers.map(h =>
             <div css={this.cellCss} style={{ flexGrow: h.weight }}>
                 {this.props.data[h.value]}
             </div>
         )
 
+        const expand = this.props.expandables.map(e =>
+            <div>{e.name}: {this.props.data[e.value].toString()}</div>
+        )
+
         return (
-            <div css={this.rowCss}>
-                {cells}
+            <div onClick={this.toggleOpen}>
+
+                <div css={this.rowCss} >
+                    {cells}
+                </div>
+                {this.state.open ? expand : null}
             </div>
         )
     }

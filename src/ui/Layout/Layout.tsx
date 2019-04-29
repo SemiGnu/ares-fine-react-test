@@ -31,7 +31,18 @@ class Layout extends React.Component<IProps, IState> {
                 {name: 'Name', value: 'name', weight: 1},
                 {name: 'Age', value: 'age', weight: 1},
                 {name: 'Company', value: 'company', weight: 1},
-            ]
+            ],
+            expandables:[
+                {name: 'Email', value: 'email'},
+                {name: 'Signed up', value: 'registered'},
+                {name: 'Favorite fruit', value: 'favoriteFruit'},
+                {name: 'About', value: 'about'},
+            ],
+            searchables: {
+                text:['name','company','about'],
+                number:['age'],
+                checkbox:['favoriteFruit']
+            }
         }
         return (
             <React.Fragment>
