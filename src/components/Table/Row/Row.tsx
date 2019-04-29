@@ -5,6 +5,7 @@ import { ITableHeader, IExpandable } from '../Table'
 
 interface IState {
     open: boolean
+   
 }
 
 interface IProps {
@@ -18,7 +19,7 @@ class Row extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props)
         this.state = {
-            open: false
+            open: false,
         }
     }
 
@@ -38,7 +39,7 @@ class Row extends React.Component<IProps, IState> {
 
     render() {
         const cells = this.props.headers.map(h =>
-            <div css={this.cellCss} style={{ flexGrow: h.weight }}>
+            <div key={h.name} css={this.cellCss} style={{ flexGrow: h.weight }}>
                 {this.props.data[h.value]}
             </div>
         )

@@ -36,6 +36,10 @@ interface IState {
     numberFilterBy: string
     numberFilterType: string
     numberFilter: number
+    checkboxSets: {
+        name: string,
+        values: { value: string, checked: boolean }[]
+    }[]
 }
 
 interface IProps {
@@ -53,7 +57,8 @@ class Table extends React.Component<IProps, IState> {
             textFilter: '',
             numberFilterBy: this.props.tableData.searchables.number[0],
             numberFilterType: 'gt',
-            numberFilter: 0
+            numberFilter: 0,
+            checkboxSets: []
         }
     }
 
@@ -61,8 +66,26 @@ class Table extends React.Component<IProps, IState> {
         width: 1000px;
     `
 
+
     componentDidUpdate() {
-        //console.log(this.props.tableData.data[0]['name']['last'])
+        if (this.state.checkboxSets.length < 1) {
+            this.setState({
+                checkboxSets: this.props.tableData.searchables.checkbox.map((c) => {
+                    const values: string[] = []
+                    for (let i: number = 0; i < this.props.tableData.data.length; i++) {
+                        if (!values.includes(this.props.tableData.data[i][c])) {
+                            values.push(this.props.tableData.data[i][c])
+                        }
+                    }
+                    const set = {
+                        name: c,
+                        values: values.map(v => { return { value: v, checked: false } })
+                    }
+                    console.log(set)
+                    return set
+                })
+            })
+        }
     }
 
     setSort = (name: string) => {
@@ -87,7 +110,7 @@ class Table extends React.Component<IProps, IState> {
                 p = d[this.state.numberFilterBy] > this.state.numberFilter;
                 break
             case 'eq':
-                p =  d[this.state.numberFilterBy] === this.state.numberFilter;
+                p = d[this.state.numberFilterBy] === this.state.numberFilter;
                 break
             case 'lt':
                 p = d[this.state.numberFilterBy] < this.state.numberFilter;
@@ -110,18 +133,19 @@ class Table extends React.Component<IProps, IState> {
 
 
     render() {
+        let k = 0
         const rows = this.props.tableData.data
             .filter(this.textFilter)
             .filter(this.numberFilter)
             .sort(this.sort)
             .map(td =>
-                <Row data={td} headers={this.props.tableData.headers} expandables={this.props.tableData.expandables} />
+                <Row key={k++} data={td} headers={this.props.tableData.headers} expandables={this.props.tableData.expandables} />
             )
         const textFilterOptions = this.props.tableData.searchables.text.map(t =>
-            <option value={t}>{t}</option>
+            <option key={t} value={t}>{t}</option>
         )
         const numberFilterOptions = this.props.tableData.searchables.number.map(t =>
-            <option value={t}>{t}</option>
+            <option key={t} value={t}>{t}</option>
         )
         return (
             <React.Fragment>
