@@ -2,44 +2,51 @@
 import React from 'react'
 import Header from './Header/Header'
 import Row from './Row/Row'
+import TextFilter from './FilterControls/TextFilter'
+import NumberFilter from './FilterControls/NumberFilter'
 import { css } from '@emotion/core'
 
 export interface ITableData {
     data: any[]
-    headers: ITableHeader[]
-    expandables: IExpandable[]
-    searchables: ISearchable
+    dataFormat: ITableDataFormat[]
 }
 
-export interface ITableHeader {
+export enum FilterType {
+    searchString,
+    number,
+    date,
+    checkbox
+}
+
+export enum ComparatorType {
+    gt,
+    eq,
+    lt
+}
+
+export interface ITableDataFormat {
+    variable: string
     name: string
-    value: string
+    header: boolean
     weight: number
-}
-
-export interface ISearchable {
-    text: string[]
-    number: string[]
-    checkbox: string[]
-}
-
-export interface IExpandable {
-    name: string
-    value: string
+    filterType: FilterType
+    defaultFilter?: any
 }
 
 interface IState {
     sortBy: string
     sortAscending: boolean
-    textFilter: string
-    textFilterBy: string
-    numberFilterBy: string
-    numberFilterType: string
-    numberFilter: number
-    checkboxSets: {
-        name: string,
-        values: { value: string, checked: boolean }[]
-    }[]
+    filter: {
+        textFilter: string
+        textFilterBy: string
+        numberFilterBy: string
+        numberFilterType: ComparatorType
+        numberFilter: number
+        checkboxSets: {
+            name: string,
+            values: { value: string, checked: boolean }[]
+        }[]
+    }
 }
 
 interface IProps {
@@ -50,15 +57,21 @@ class Table extends React.Component<IProps, IState> {
     state: IState
     constructor(props: IProps) {
         super(props)
+        const firstHeader = this.props.tableData.dataFormat.find(df => df.header)
+        const initialSortBy = firstHeader ? firstHeader.variable : ''
+        const firstNumber = this.props.tableData.dataFormat.find(df => df.filterType === FilterType.number)
+        const intitialNumberFilterBy = firstNumber ? firstNumber.variable : ''
         this.state = {
-            sortBy: this.props.tableData.headers[0].value,
+            sortBy: initialSortBy,
             sortAscending: true,
-            textFilterBy: this.props.tableData.headers[0].value,
-            textFilter: '',
-            numberFilterBy: this.props.tableData.searchables.number[0],
-            numberFilterType: 'gt',
-            numberFilter: 0,
-            checkboxSets: []
+            filter: {
+                textFilterBy: initialSortBy,
+                textFilter: '',
+                numberFilterBy: intitialNumberFilterBy,
+                numberFilterType: ComparatorType.gt,
+                numberFilter: 0,
+                checkboxSets: []
+            }
         }
     }
 
@@ -68,52 +81,42 @@ class Table extends React.Component<IProps, IState> {
 
 
     componentDidUpdate() {
-        if (this.state.checkboxSets.length < 1) {
-            this.setState({
-                checkboxSets: this.props.tableData.searchables.checkbox.map((c) => {
-                    const values: string[] = []
-                    for (let i: number = 0; i < this.props.tableData.data.length; i++) {
-                        if (!values.includes(this.props.tableData.data[i][c])) {
-                            values.push(this.props.tableData.data[i][c])
-                        }
-                    }
-                    const set = {
-                        name: c,
-                        values: values.map(v => { return { value: v, checked: false } })
-                    }
-                    console.log(set)
-                    return set
-                })
-            })
-        }
+        //checkbox init
+        // if (this.state.filter.checkboxSets.length < 1 && this.props.tableData.dataFormat.find(df => df.filterType === FilterType.checkbox)) {
+
+        //     let checkboxSets: any = []
+        //     this.setState(prevState => ({
+        //         filter: { ...prevState.filter, checkboxSets: checkboxSets }
+        //     }))
+        // }
     }
 
-    setSort = (name: string) => {
-        if (name === this.state.sortBy) {
+    setSort = (variable: string) => {
+        if (variable === this.state.sortBy) {
             this.setState({ sortAscending: !this.state.sortAscending })
         } else {
-            this.setState({ sortBy: name })
+            this.setState({ sortBy: variable, sortAscending: true })
         }
     }
 
     sort = (a: any, b: any) => {
-        // console.log(a ,this.state.sortBy)
         const s = a[this.state.sortBy].toString().localeCompare(b[this.state.sortBy].toString())
         return this.state.sortAscending ? s : -s
     }
 
-    textFilter = (d: any) => d[this.state.textFilterBy].toLowerCase().includes(this.state.textFilter.toLowerCase())
+
+    textFilter = (d: any) => d[this.state.filter.textFilterBy].toLowerCase().includes(this.state.filter.textFilter.toLowerCase())
     numberFilter = (d: any) => {
         let p
-        switch (this.state.numberFilterType) {
-            case 'gt':
-                p = d[this.state.numberFilterBy] > this.state.numberFilter;
+        switch (this.state.filter.numberFilterType) {
+            case ComparatorType.gt:
+                p = d[this.state.filter.numberFilterBy] > this.state.filter.numberFilter;
                 break
-            case 'eq':
-                p = d[this.state.numberFilterBy] === this.state.numberFilter;
+            case ComparatorType.eq:
+                p = d[this.state.filter.numberFilterBy] === this.state.filter.numberFilter;
                 break
-            case 'lt':
-                p = d[this.state.numberFilterBy] < this.state.numberFilter;
+            case ComparatorType.lt:
+                p = d[this.state.filter.numberFilterBy] < this.state.filter.numberFilter;
                 break
             default:
                 p = true
@@ -121,15 +124,29 @@ class Table extends React.Component<IProps, IState> {
         return p
     }
 
+    
 
-    textFilterChangedHandler = (event: any) => this.setState({ textFilter: event.target.value })
-    textFilterByChangedHandler = (event: any) => this.setState({ textFilterBy: event.target.value })
-    numberFilterChangedHandler = (event: any) => {
-        console.log(Number(event.target.value))
-        this.setState({ numberFilter: Number(event.target.value) })
+
+    textFilterChangedHandler = (event: any) => {
+        const v = event.target.value
+        this.setState(prevState => ({ filter: { ...prevState.filter, textFilter: v } }))
     }
-    numberFilterByChangedHandler = (event: any) => this.setState({ numberFilterBy: event.target.value })
-    numberFilterTypeChangedHandler = (event: any) => this.setState({ numberFilterType: event.target.value })
+    textFilterByChangedHandler = (event: any) => {
+        const v = event.target.value
+        this.setState(prevState => ({ filter: { ...prevState.filter, textFilterBy: v } }))
+    }
+    numberFilterChangedHandler = (event: any) =>{
+        const v = Number(event.target.value)
+        this.setState(prevState => ({ filter: { ...prevState.filter, numberFilter: v } }))
+    }
+    numberFilterByChangedHandler = (event: any) => {
+        const v = event.target.value
+        this.setState(prevState => ({ filter: { ...prevState.filter, numberFilterBy: v } }))
+    }
+    numberFilterTypeChangedHandler = (event: any) => {
+        const v = Number(event.target.value)
+        this.setState(prevState => ({ filter: { ...prevState.filter, numberFilterType: v } }))
+    }
 
 
     render() {
@@ -139,30 +156,29 @@ class Table extends React.Component<IProps, IState> {
             .filter(this.numberFilter)
             .sort(this.sort)
             .map(td =>
-                <Row key={k++} data={td} headers={this.props.tableData.headers} expandables={this.props.tableData.expandables} />
+                <Row key={k++} data={td} dataFormat={this.props.tableData.dataFormat} />
             )
-        const textFilterOptions = this.props.tableData.searchables.text.map(t =>
-            <option key={t} value={t}>{t}</option>
-        )
-        const numberFilterOptions = this.props.tableData.searchables.number.map(t =>
-            <option key={t} value={t}>{t}</option>
-        )
         return (
             <React.Fragment>
-                <select value={this.state.textFilterBy} onChange={this.textFilterByChangedHandler}>{textFilterOptions}</select>
-                <input type='text' value={this.state.textFilter} onChange={this.textFilterChangedHandler} />
+                <TextFilter
+                    dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.searchString)}
+                    filterChangedHandler={this.textFilterChangedHandler}
+                    filterByChangedHandler={this.textFilterByChangedHandler}
+                    filter={this.state.filter.textFilter}
+                    filterBy={this.state.filter.textFilterBy}
+                />
                 <br />
-                <select value={this.state.numberFilterBy} onChange={this.numberFilterByChangedHandler} >{numberFilterOptions}</select>
-                <select value={this.state.numberFilterType} onChange={this.numberFilterTypeChangedHandler} >
-                    <option value='gt'>></option>
-                    <option value='eq'>=</option>
-                    <option value='lt'>{'<'}</option>
-                </select>
-                <input type='number' value={this.state.numberFilter} onChange={this.numberFilterChangedHandler} />
-                <br />
-                <br />
+                <NumberFilter
+                    dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.number)}
+                    filterChangedHandler={this.numberFilterChangedHandler}
+                    filterByChangedHandler={this.numberFilterByChangedHandler}
+                    filterTypeChangedHandler={this.numberFilterTypeChangedHandler}
+                    filter={this.state.filter.numberFilter}
+                    filterBy={this.state.filter.numberFilterBy}
+                    filterType={this.state.filter.numberFilterType}
+                />
                 <div css={this.tableCss}>
-                    <Header headers={this.props.tableData.headers} callback={this.setSort} />
+                    <Header dataFormat={this.props.tableData.dataFormat} callback={this.setSort} />
                     {rows}
                 </div>
             </React.Fragment>
