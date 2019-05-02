@@ -4,6 +4,7 @@ import Header from './Header/Header'
 import Row from './Row/Row'
 import TextFilter from './FilterControls/TextFilter'
 import NumberFilter from './FilterControls/NumberFilter'
+import DateFilter from './FilterControls/DateFilter';
 import { css } from '@emotion/core'
 
 export interface ITableData {
@@ -42,6 +43,9 @@ interface IState {
         numberFilterBy: string
         numberFilterType: ComparatorType
         numberFilter: number
+        dateFilterBy: string
+        dateFilterType: ComparatorType
+        dateFilter: Date
         checkboxSets: {
             name: string,
             values: { value: string, checked: boolean }[]
@@ -61,6 +65,8 @@ class Table extends React.Component<IProps, IState> {
         const initialSortBy = firstHeader ? firstHeader.variable : ''
         const firstNumber = this.props.tableData.dataFormat.find(df => df.filterType === FilterType.number)
         const intitialNumberFilterBy = firstNumber ? firstNumber.variable : ''
+        const firstDate = this.props.tableData.dataFormat.find(df => df.filterType === FilterType.date)
+        const intitialDataFilterBy = firstDate ? firstDate.variable : ''
         this.state = {
             sortBy: initialSortBy,
             sortAscending: true,
@@ -70,6 +76,9 @@ class Table extends React.Component<IProps, IState> {
                 numberFilterBy: intitialNumberFilterBy,
                 numberFilterType: ComparatorType.gt,
                 numberFilter: 0,
+                dateFilterBy: intitialDataFilterBy,
+                dateFilterType: ComparatorType.lt,
+                dateFilter: new Date(1900, 0, 1),
                 checkboxSets: []
             }
         }
@@ -123,10 +132,32 @@ class Table extends React.Component<IProps, IState> {
         }
         return p
     }
+    dateFilter = (d: any) => {
+        let p
+        const date = d[this.state.filter.dateFilterBy]
+        const compDate = new Date(date.getYear(), date.getMonth(), date.getDate())
+        if (compDate instanceof Date && !isNaN(Number(compDate))) return true
+        switch (this.state.filter.dateFilterType) {
+            case ComparatorType.gt:
+                p = compDate > this.state.filter.dateFilter;
+                break
+            case ComparatorType.eq:
+                p = compDate === this.state.filter.dateFilter;
+                break
+            case ComparatorType.lt:
+                p = compDate < this.state.filter.dateFilter;
+                break
+            default:
+                p = true
+        }
 
-    
+        return p
+    }
 
 
+
+
+    //TEXTFILTERS
     textFilterChangedHandler = (event: any) => {
         const v = event.target.value
         this.setState(prevState => ({ filter: { ...prevState.filter, textFilter: v } }))
@@ -135,7 +166,9 @@ class Table extends React.Component<IProps, IState> {
         const v = event.target.value
         this.setState(prevState => ({ filter: { ...prevState.filter, textFilterBy: v } }))
     }
-    numberFilterChangedHandler = (event: any) =>{
+
+    //NUMBERFILTERS
+    numberFilterChangedHandler = (event: any) => {
         const v = Number(event.target.value)
         this.setState(prevState => ({ filter: { ...prevState.filter, numberFilter: v } }))
     }
@@ -148,18 +181,34 @@ class Table extends React.Component<IProps, IState> {
         this.setState(prevState => ({ filter: { ...prevState.filter, numberFilterType: v } }))
     }
 
+    //DATEFILTERS
+    dateFilterChangedHandler = (event: any) => {
+        const v =  event.target.value
+        this.setState(prevState => ({ filter: { ...prevState.filter, dateFilter: v } }))
+    }
+    dateFilterByChangedHandler = (event: any) => {
+        const v = event.target.value
+        this.setState(prevState => ({ filter: { ...prevState.filter, dateFilterBy: v } }))
+    }
+    dateFilterTypeChangedHandler = (event: any) => {
+        const v = Number(event.target.value)
+        this.setState(prevState => ({ filter: { ...prevState.filter, dateFilterType: v } }))
+    }
+
 
     render() {
         let k = 0
         const rows = this.props.tableData.data
             .filter(this.textFilter)
             .filter(this.numberFilter)
+            .filter(this.dateFilter)
             .sort(this.sort)
             .map(td =>
                 <Row key={k++} data={td} dataFormat={this.props.tableData.dataFormat} />
             )
         return (
-            <React.Fragment>
+            <div>
+
                 <TextFilter
                     dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.searchString)}
                     filterChangedHandler={this.textFilterChangedHandler}
@@ -177,11 +226,22 @@ class Table extends React.Component<IProps, IState> {
                     filterBy={this.state.filter.numberFilterBy}
                     filterType={this.state.filter.numberFilterType}
                 />
+                <br />
+                <DateFilter
+                    dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.date)}
+                    filterChangedHandler={this.dateFilterChangedHandler}
+                    filterByChangedHandler={this.dateFilterByChangedHandler}
+                    filterTypeChangedHandler={this.dateFilterTypeChangedHandler}
+                    filter={this.state.filter.dateFilter}
+                    filterBy={this.state.filter.dateFilterBy}
+                    filterType={this.state.filter.dateFilterType}
+                />
+                <br />
                 <div css={this.tableCss}>
                     <Header dataFormat={this.props.tableData.dataFormat} callback={this.setSort} />
                     {rows}
                 </div>
-            </React.Fragment>
+            </div>
         )
     }
 }

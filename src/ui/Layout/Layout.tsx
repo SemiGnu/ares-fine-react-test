@@ -1,3 +1,4 @@
+/** @jsx jsx */ import { jsx, css } from '@emotion/core'
 import React from 'react'
 // import { css } from '@emotion/core'
 import DataLoader, { IPerson } from '../../components/DataLoader/DataLoader'
@@ -20,6 +21,11 @@ class Layout extends React.Component<IProps, IState> {
         }
     }
 
+    containerCss = css`
+        display: flex;
+        justify-content: center;
+    `
+
     getData = (persons: IPerson[]) => {
         this.setState({ persons: persons })
     }
@@ -28,20 +34,22 @@ class Layout extends React.Component<IProps, IState> {
         const tableData: ITableData = {
             data: this.state.persons,
             dataFormat: [
-                { variable: 'name', name: 'Name', header: true, weight:1, filterType: FilterType.searchString},
-                { variable: 'age', name: 'Age', header: true, weight:1, filterType: FilterType.number},
-                { variable: 'company', name: 'Company', header: true, weight:1, filterType: FilterType.searchString},
-                { variable: 'email', name: 'Email', header: false, weight:1, filterType: FilterType.searchString},
-                { variable: 'registered', name: 'signed up', header: false, weight:1, filterType: FilterType.date},
-                { variable: 'favoriteFruit', name: 'Favorite', header: false, weight:1, filterType: FilterType.checkbox},
-                { variable: 'about', name: 'About', header: false, weight:1, filterType: FilterType.searchString},
-                { variable: 'id', name: 'Id', header: false, weight:1, filterType: FilterType.searchString}
+                { variable: 'name', name: 'Name', header: true, weight: 1, filterType: FilterType.searchString },
+                { variable: 'age', name: 'Age', header: true, weight: 1, filterType: FilterType.number },
+                { variable: 'company', name: 'Company', header: true, weight: 1, filterType: FilterType.searchString },
+                { variable: 'email', name: 'Email', header: false, weight: 1, filterType: FilterType.searchString },
+                { variable: 'registered', name: 'Signed up', header: false, weight: 1, filterType: FilterType.date },
+                { variable: 'favoriteFruit', name: 'Favorite', header: false, weight: 1, filterType: FilterType.checkbox },
+                { variable: 'about', name: 'About', header: false, weight: 1, filterType: FilterType.searchString },
+                { variable: 'id', name: 'Id', header: false, weight: 1, filterType: FilterType.searchString }
             ]
         }
         return (
             <React.Fragment>
                 <DataLoader callback={this.getData} />
-                <Table tableData={tableData} />
+                <div css={this.containerCss}>
+                    <Table tableData={tableData} />
+                </div>
             </React.Fragment>
         )
     }
