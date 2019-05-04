@@ -85,7 +85,11 @@ class Table extends React.Component<IProps, IState> {
     }
 
     tableCss = css`
-        width: 1000px;
+        width: 960px;
+        @media (max-width: 1200px) {
+            width: 80%;
+        }
+
     `
 
 
@@ -183,7 +187,7 @@ class Table extends React.Component<IProps, IState> {
 
     //DATEFILTERS
     dateFilterChangedHandler = (event: any) => {
-        const v =  event.target.value
+        const v = event.target.value
         this.setState(prevState => ({ filter: { ...prevState.filter, dateFilter: v } }))
     }
     dateFilterByChangedHandler = (event: any) => {
@@ -204,44 +208,46 @@ class Table extends React.Component<IProps, IState> {
             .filter(this.dateFilter)
             .sort(this.sort)
             .map(td =>
-                <Row key={k++} data={td} dataFormat={this.props.tableData.dataFormat} />
+                <Row key={k++} shaded={k % 2 === 0} data={td} dataFormat={this.props.tableData.dataFormat} />
             )
         return (
-            <div>
+            <React.Fragment>
+                <div css={this.tableCss}>
 
-                <TextFilter
-                    dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.searchString)}
-                    filterChangedHandler={this.textFilterChangedHandler}
-                    filterByChangedHandler={this.textFilterByChangedHandler}
-                    filter={this.state.filter.textFilter}
-                    filterBy={this.state.filter.textFilterBy}
-                />
-                <br />
-                <NumberFilter
-                    dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.number)}
-                    filterChangedHandler={this.numberFilterChangedHandler}
-                    filterByChangedHandler={this.numberFilterByChangedHandler}
-                    filterTypeChangedHandler={this.numberFilterTypeChangedHandler}
-                    filter={this.state.filter.numberFilter}
-                    filterBy={this.state.filter.numberFilterBy}
-                    filterType={this.state.filter.numberFilterType}
-                />
-                <br />
-                <DateFilter
-                    dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.date)}
-                    filterChangedHandler={this.dateFilterChangedHandler}
-                    filterByChangedHandler={this.dateFilterByChangedHandler}
-                    filterTypeChangedHandler={this.dateFilterTypeChangedHandler}
-                    filter={this.state.filter.dateFilter}
-                    filterBy={this.state.filter.dateFilterBy}
-                    filterType={this.state.filter.dateFilterType}
-                />
-                <br />
+                    <TextFilter
+                        dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.searchString)}
+                        filterChangedHandler={this.textFilterChangedHandler}
+                        filterByChangedHandler={this.textFilterByChangedHandler}
+                        filter={this.state.filter.textFilter}
+                        filterBy={this.state.filter.textFilterBy}
+                    />
+                    <br />
+                    <NumberFilter
+                        dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.number)}
+                        filterChangedHandler={this.numberFilterChangedHandler}
+                        filterByChangedHandler={this.numberFilterByChangedHandler}
+                        filterTypeChangedHandler={this.numberFilterTypeChangedHandler}
+                        filter={this.state.filter.numberFilter}
+                        filterBy={this.state.filter.numberFilterBy}
+                        filterType={this.state.filter.numberFilterType}
+                    />
+                    <br />
+                    <DateFilter
+                        dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.date)}
+                        filterChangedHandler={this.dateFilterChangedHandler}
+                        filterByChangedHandler={this.dateFilterByChangedHandler}
+                        filterTypeChangedHandler={this.dateFilterTypeChangedHandler}
+                        filter={this.state.filter.dateFilter}
+                        filterBy={this.state.filter.dateFilterBy}
+                        filterType={this.state.filter.dateFilterType}
+                    />
+                    <br />
+                </div>
                 <div css={this.tableCss}>
                     <Header dataFormat={this.props.tableData.dataFormat} callback={this.setSort} />
                     {rows}
                 </div>
-            </div>
+            </React.Fragment>
         )
     }
 }

@@ -24,6 +24,9 @@ class Layout extends React.Component<IProps, IState> {
     containerCss = css`
         display: flex;
         justify-content: center;
+        align-items:center;
+        flex-direction: column;
+    
     `
 
     getData = (persons: IPerson[]) => {
