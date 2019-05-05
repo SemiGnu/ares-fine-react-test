@@ -41,7 +41,7 @@ class Layout extends React.Component<IProps, IState> {
                 { variable: 'age', name: 'Age', header: true, weight: 1, filterType: FilterType.number },
                 { variable: 'company', name: 'Company', header: true, weight: 1, filterType: FilterType.searchString },
                 { variable: 'email', name: 'Email', header: false, weight: 1, filterType: FilterType.searchString },
-                { variable: 'registered', name: 'Signed up', header: false, weight: 1, filterType: FilterType.date },
+                { variable: 'registered', name: 'Signed up', header: false, weight: 1, filterType: FilterType.date, earliestDate: new Date('01-01-2010') },
                 { variable: 'favoriteFruit', name: 'Favorite', header: false, weight: 1, filterType: FilterType.checkbox },
                 { variable: 'about', name: 'About', header: false, weight: 1, filterType: FilterType.searchString },
                 { variable: 'id', name: 'Id', header: false, weight: 1, filterType: FilterType.searchString }

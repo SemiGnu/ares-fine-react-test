@@ -1,5 +1,5 @@
 import React from 'react'
-// import DatePicker from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
 import { ITableDataFormat, ComparatorType } from '../Table'
 
@@ -8,19 +8,9 @@ interface IProps {
     filterChangedHandler: (e: any) => void
     filterByChangedHandler: (e: any) => void
     filterTypeChangedHandler: (e: any) => void
-    filter: Date
+    filter: Date | null
     filterBy: string
     filterType: ComparatorType
-}
-
-const formatDate = (date: Date) => {
-    date = new Date(date)
-    let text = date.getFullYear().toString() + '-'
-    if (date.getMonth() < 9) text += '0'
-    text += (1 + date.getMonth()) + '-'
-    if (date.getDate() < 10) text += '0'
-    text += date.getDate()
-    return text
 }
 
 const dateFilter: React.FC<IProps> = props => {
@@ -34,8 +24,15 @@ const dateFilter: React.FC<IProps> = props => {
             <option value={ComparatorType.eq}>On</option>
             <option value={ComparatorType.lt}>After</option>
         </select>
-        <input type='date' value={formatDate(props.filter)} onChange={props.filterChangedHandler} />
-        {/* <DatePicker selected={props.filter} onChange={props.filterChangedHandler}/> */}
+        <DatePicker 
+            selected={props.filter} 
+            onChange={props.filterChangedHandler} 
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
+            isClearable
+            placeholderText="Click to enter a date"
+        />
     </React.Fragment>
 }
 

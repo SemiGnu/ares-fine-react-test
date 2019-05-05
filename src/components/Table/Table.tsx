@@ -32,6 +32,7 @@ export interface ITableDataFormat {
     weight: number
     filterType: FilterType
     defaultFilter?: any
+    earliestDate?: Date
 }
 
 interface IState {
@@ -45,7 +46,7 @@ interface IState {
         numberFilter: number
         dateFilterBy: string
         dateFilterType: ComparatorType
-        dateFilter: Date
+        dateFilter: Date | null
         checkboxSets: {
             name: string,
             values: { value: string, checked: boolean }[]
@@ -64,21 +65,21 @@ class Table extends React.Component<IProps, IState> {
         const firstHeader = this.props.tableData.dataFormat.find(df => df.header)
         const initialSortBy = firstHeader ? firstHeader.variable : ''
         const firstNumber = this.props.tableData.dataFormat.find(df => df.filterType === FilterType.number)
-        const intitialNumberFilterBy = firstNumber ? firstNumber.variable : ''
+        const initialNumberFilterBy = firstNumber ? firstNumber.variable : ''
         const firstDate = this.props.tableData.dataFormat.find(df => df.filterType === FilterType.date)
-        const intitialDataFilterBy = firstDate ? firstDate.variable : ''
+        const initialDateFilterBy = firstDate ? firstDate.variable : ''
         this.state = {
             sortBy: initialSortBy,
             sortAscending: true,
             filter: {
                 textFilterBy: initialSortBy,
                 textFilter: '',
-                numberFilterBy: intitialNumberFilterBy,
+                numberFilterBy: initialNumberFilterBy,
                 numberFilterType: ComparatorType.gt,
                 numberFilter: 0,
-                dateFilterBy: intitialDataFilterBy,
+                dateFilterBy: initialDateFilterBy,
                 dateFilterType: ComparatorType.lt,
-                dateFilter: new Date(1900, 0, 1),
+                dateFilter: null,
                 checkboxSets: []
             }
         }
@@ -94,14 +95,7 @@ class Table extends React.Component<IProps, IState> {
 
 
     componentDidUpdate() {
-        //checkbox init
-        // if (this.state.filter.checkboxSets.length < 1 && this.props.tableData.dataFormat.find(df => df.filterType === FilterType.checkbox)) {
 
-        //     let checkboxSets: any = []
-        //     this.setState(prevState => ({
-        //         filter: { ...prevState.filter, checkboxSets: checkboxSets }
-        //     }))
-        // }
     }
 
     setSort = (variable: string) => {
@@ -139,8 +133,8 @@ class Table extends React.Component<IProps, IState> {
     dateFilter = (d: any) => {
         let p
         const date = d[this.state.filter.dateFilterBy]
-        const compDate = new Date(date.getYear(), date.getMonth(), date.getDate())
-        if (compDate instanceof Date && !isNaN(Number(compDate))) return true
+        const compDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+        if (!(compDate instanceof Date && !isNaN(Number(compDate))) || !this.state.filter.dateFilter) return true
         switch (this.state.filter.dateFilterType) {
             case ComparatorType.gt:
                 p = compDate > this.state.filter.dateFilter;
@@ -154,7 +148,6 @@ class Table extends React.Component<IProps, IState> {
             default:
                 p = true
         }
-
         return p
     }
 
@@ -186,8 +179,8 @@ class Table extends React.Component<IProps, IState> {
     }
 
     //DATEFILTERS
-    dateFilterChangedHandler = (event: any) => {
-        const v = event.target.value
+    dateFilterChangedHandler = (date: Date) => {
+        const v = date
         this.setState(prevState => ({ filter: { ...prevState.filter, dateFilter: v } }))
     }
     dateFilterByChangedHandler = (event: any) => {
