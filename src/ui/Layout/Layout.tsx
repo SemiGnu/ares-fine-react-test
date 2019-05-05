@@ -1,11 +1,11 @@
 /** @jsx jsx */ import { jsx, css } from '@emotion/core'
 import React from 'react'
 // import { css } from '@emotion/core'
-import DataLoader, { IPerson } from '../../components/DataLoader/DataLoader'
+import DataLoader from '../../components/DataLoader/DataLoader'
 import Table, { ITableData, FilterType } from '../../components/Table/Table'
 
 interface IState {
-    persons: IPerson[]
+    persons: any[]
 }
 
 interface IProps {
@@ -29,7 +29,7 @@ class Layout extends React.Component<IProps, IState> {
     
     `
 
-    getData = (persons: IPerson[]) => {
+    getData = (persons: any[]) => {
         this.setState({ persons: persons })
     }
 
@@ -43,6 +43,7 @@ class Layout extends React.Component<IProps, IState> {
                 { variable: 'email', name: 'Email', header: false, weight: 1, filterType: FilterType.searchString },
                 { variable: 'registered', name: 'Signed up', header: false, weight: 1, filterType: FilterType.date, earliestDate: new Date('01-01-2010') },
                 { variable: 'favoriteFruit', name: 'Favorite fruit', header: false, weight: 1, filterType: FilterType.checkbox },
+                { variable: 'eyeColor', name: 'Eye Color', header: false, weight: 1, filterType: FilterType.checkbox },
                 { variable: 'about', name: 'About', header: false, weight: 1, filterType: FilterType.searchString },
                 { variable: 'id', name: 'Id', header: false, weight: 1, filterType: FilterType.searchString }
             ]

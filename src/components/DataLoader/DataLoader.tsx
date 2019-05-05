@@ -1,25 +1,12 @@
 import React from 'react'
 import axios from 'axios'
 
-
-
-export interface IPerson {
-    id: string
-    name: string
-    company: string
-    email: string
-    about: string
-    registered: Date
-    age: number
-    favoriteFruit: string
-}
-
 interface IState {
-    persons: IPerson[]
+    persons: any[]
 }
 
 interface IProps {
-    callback: ((persons: IPerson[]) => void)
+    callback: ((data: any[]) => void)
 }
 
 class DataLoader extends React.Component<IProps, IState> {
@@ -33,8 +20,8 @@ class DataLoader extends React.Component<IProps, IState> {
 
     componentDidMount() {
         axios.get("https://ares-fine-react-test.firebaseio.com/persons.json").then((response) => {
-            const persons: IPerson[] = response.data.map(((p: any) => {
-                const person: IPerson = {
+            const persons: any[] = response.data.map(((p: any) => {
+                const person: any = {
                     id: p._id,
                     about: p.about,
                     name: p.name.first + " " + p.name.last,
@@ -43,6 +30,7 @@ class DataLoader extends React.Component<IProps, IState> {
                     registered: new Date(p.registered),
                     email: p.email,
                     favoriteFruit: p.favoriteFruit,
+                    eyeColor: p.eyeColor
                 }
                 return person
             }))

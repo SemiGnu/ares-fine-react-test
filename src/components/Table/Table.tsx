@@ -180,13 +180,13 @@ class Table extends React.Component<IProps, IState> {
         if (!(compDate instanceof Date && !isNaN(Number(compDate))) || !this.state.filter.dateFilter) return true
         switch (this.state.filter.dateFilterType) {
             case ComparatorType.gt:
-                p = compDate > this.state.filter.dateFilter;
+                p = compDate < this.state.filter.dateFilter;
                 break
             case ComparatorType.eq:
                 p = compDate === this.state.filter.dateFilter;
                 break
             case ComparatorType.lt:
-                p = compDate < this.state.filter.dateFilter;
+                p = compDate > this.state.filter.dateFilter;
                 break
             default:
                 p = true
