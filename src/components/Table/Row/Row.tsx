@@ -32,11 +32,14 @@ class Row extends React.Component<IProps, IState> {
         align-content:left;
         justify-content: space-between
         width: 100%;
-        margin: 5px 0 0 0;
-        background-color: white;
     `
     cellCss = css`
         font-weight: 400;
+    `
+    wrapperCss = css`
+        padding: 3px 0 3px 5px;
+        background-color:${this.props.shaded ? '#dde' : 'white'};
+        border-radius: 5px;
     `
     extendAntimation = keyframes`
         from {transform: scaleY(0);max-height:0;}
@@ -54,7 +57,8 @@ class Row extends React.Component<IProps, IState> {
         ${this.extendCss}
         transform-origin: 100% 0%;
         animation: ${this.extendAntimation} 400ms ease-in;
-        font-size:14px; 
+        margin-top:2px;
+        font-size:13px; 
     `
     retractCellCss = css`
         ${this.extendCss}
@@ -90,6 +94,7 @@ class Row extends React.Component<IProps, IState> {
         })
         return (
             <div
+                css={this.wrapperCss}
                 onClick={this.toggleOpen}
             >
                 <div css={this.rowCss} >

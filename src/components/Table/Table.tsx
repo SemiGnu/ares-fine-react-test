@@ -91,6 +91,23 @@ class Table extends React.Component<IProps, IState> {
             width: 80%;
         }
 
+        select {
+            border: 1px solid #bbd;
+            border-radius: 5px;
+            box-shadow: 0px 0px 2px #99c;
+            background-color: white;
+            margin : 5px;
+            padding: 5px;
+        }
+
+        input {
+            border: 1px solid #bbd;
+            border-radius: 5px;
+            box-shadow: 0px 0px 2px #99c;
+            margin : 5px;
+            padding: 6px;
+        }
+
     `
 
 
@@ -214,7 +231,6 @@ class Table extends React.Component<IProps, IState> {
                         filter={this.state.filter.textFilter}
                         filterBy={this.state.filter.textFilterBy}
                     />
-                    <br />
                     <NumberFilter
                         dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.number)}
                         filterChangedHandler={this.numberFilterChangedHandler}
@@ -224,7 +240,6 @@ class Table extends React.Component<IProps, IState> {
                         filterBy={this.state.filter.numberFilterBy}
                         filterType={this.state.filter.numberFilterType}
                     />
-                    <br />
                     <DateFilter
                         dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.date)}
                         filterChangedHandler={this.dateFilterChangedHandler}
@@ -234,7 +249,6 @@ class Table extends React.Component<IProps, IState> {
                         filterBy={this.state.filter.dateFilterBy}
                         filterType={this.state.filter.dateFilterType}
                     />
-                    <br />
                 </div>
                 <div css={this.tableCss}>
                     <Header dataFormat={this.props.tableData.dataFormat} callback={this.setSort} />

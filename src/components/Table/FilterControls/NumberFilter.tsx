@@ -15,7 +15,7 @@ const numberFilter: React.FC<IProps> = props => {
     const numberFilterOptions = props.dataformat.map(df =>
         <option key={df.variable} value={df.variable}>{df.name}</option>
     )
-    return <React.Fragment>
+    return <div>
         <select value={props.filterBy} onChange={props.filterByChangedHandler} >{numberFilterOptions}</select>
         <select value={props.filterType} onChange={props.filterTypeChangedHandler} >
             <option value={ComparatorType.gt}>></option>
@@ -23,7 +23,7 @@ const numberFilter: React.FC<IProps> = props => {
             <option value={ComparatorType.lt}>{'<'}</option>
         </select>
         <input type='number' value={props.filter} onChange={props.filterChangedHandler} />
-    </React.Fragment>
+    </div>
 }
 
 export default numberFilter

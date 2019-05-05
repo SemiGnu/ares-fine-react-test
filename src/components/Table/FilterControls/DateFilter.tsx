@@ -17,7 +17,7 @@ const dateFilter: React.FC<IProps> = props => {
     const numberFilterOptions = props.dataformat.map(df =>
         <option key={df.variable} value={df.variable}>{df.name}</option>
     )
-    return <React.Fragment>
+    return <div>
         <select value={props.filterBy} onChange={props.filterByChangedHandler} >{numberFilterOptions}</select>
         <select value={props.filterType} onChange={props.filterTypeChangedHandler} >
             <option value={ComparatorType.gt}>Before</option>
@@ -33,7 +33,7 @@ const dateFilter: React.FC<IProps> = props => {
             isClearable
             placeholderText="Click to enter a date"
         />
-    </React.Fragment>
+    </div>
 }
 
 export default dateFilter
