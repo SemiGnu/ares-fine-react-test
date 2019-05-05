@@ -18,12 +18,13 @@ const textFilter: React.FC<IProps> = props => {
             value={props.filterBy}
             onChange={props.filterByChangedHandler}
         >
-            {filterOptions}</select>
+            {filterOptions}
+        </select>
         <input
             type='text'
             value={props.filter}
             onChange={props.filterChangedHandler}
-            placeholder={'Search for a ' + props.filterBy}/>
+            placeholder={'Search for a ' + props.filterBy} />
     </div>
 }
 

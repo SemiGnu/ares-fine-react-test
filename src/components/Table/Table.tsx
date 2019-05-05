@@ -1,11 +1,12 @@
-/** @jsx jsx */ import { jsx } from '@emotion/core'
+/** @jsx jsx */ 
+import { jsx, css } from '@emotion/core'
 import React from 'react'
 import Header from './Header/Header'
 import Row from './Row/Row'
 import TextFilter from './FilterControls/TextFilter'
 import NumberFilter from './FilterControls/NumberFilter'
 import DateFilter from './FilterControls/DateFilter';
-import { css } from '@emotion/core'
+import CheckboxFilter from './FilterControls/CheckboxFilter';
 
 export interface ITableData {
     data: any[]
@@ -23,6 +24,12 @@ export enum ComparatorType {
     gt,
     eq,
     lt
+}
+
+export interface ICheckboxSet {
+    name: string
+    variable: string
+    values: { value: string, checked: boolean }[]
 }
 
 export interface ITableDataFormat {
@@ -47,11 +54,9 @@ interface IState {
         dateFilterBy: string
         dateFilterType: ComparatorType
         dateFilter: Date | null
-        checkboxSets: {
-            name: string,
-            values: { value: string, checked: boolean }[]
-        }[]
-    }
+        checkboxSets: ICheckboxSet[]
+    },
+    initialized: boolean
 }
 
 interface IProps {
@@ -81,12 +86,14 @@ class Table extends React.Component<IProps, IState> {
                 dateFilterType: ComparatorType.lt,
                 dateFilter: null,
                 checkboxSets: []
-            }
+            },
+            initialized: false
         }
     }
 
     tableCss = css`
         width: 960px;
+        color:  #222;
         @media (max-width: 1200px) {
             width: 80%;
         }
@@ -112,7 +119,26 @@ class Table extends React.Component<IProps, IState> {
 
 
     componentDidUpdate() {
-
+        // console.log(this.state.filter)
+        if (this.state.initialized) return
+        //wow
+        //such elegance
+        if (this.props.tableData.dataFormat.reduce((acc, df) => (acc || (df.filterType === FilterType.checkbox)), false) && this.state.filter.checkboxSets.length < 1) {
+            const newFilter = { ...this.state.filter }
+            newFilter.checkboxSets = this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.checkbox).map(df => {
+                let vars: any[] = []
+                this.props.tableData.data.map(d => {
+                    if (!vars.includes(d[df.variable])) {
+                        vars.push(d[df.variable])
+                    } return null
+                })
+                const vals = vars.map(v => ({value: v, checked: false}))
+                // console.log(vars)
+                const newSet = { name: df.name, variable: df.variable, values: vals }
+                return newSet
+            })
+            this.setState({ initialized: true, filter: newFilter })
+        } else this.setState({ initialized: true })
     }
 
     setSort = (variable: string) => {
@@ -167,6 +193,14 @@ class Table extends React.Component<IProps, IState> {
         }
         return p
     }
+    checkboxFilter = (d: any) => {
+        const subFilters = this.state.filter.checkboxSets.map(set => {
+            if (!set.values.reduce((acc, curr) => (acc || curr.checked), false)) return true
+            if (set.values.reduce((acc, curr) => (acc || (curr.value === d[set.variable] && curr.checked)), false)) return true
+            return false
+        })
+        return subFilters.reduce((acc, curr) => acc && curr, true)
+    }
 
 
 
@@ -209,17 +243,25 @@ class Table extends React.Component<IProps, IState> {
         this.setState(prevState => ({ filter: { ...prevState.filter, dateFilterType: v } }))
     }
 
+    //CHECKBOXFILTERS
+    checkboxFilterChangedHandler = (index: number, checkboxSet: ICheckboxSet) => {
+        const newSets = [...this.state.filter.checkboxSets]
+        newSets[index] = checkboxSet
+        this.setState(prevState => ({ filter: { ...prevState.filter, checkboxSets: newSets } }))
+    }
+
 
     render() {
-        let k = 0
         const rows = this.props.tableData.data
             .filter(this.textFilter)
             .filter(this.numberFilter)
             .filter(this.dateFilter)
+            .filter(this.checkboxFilter)
             .sort(this.sort)
-            .map(td =>
-                <Row key={k++} shaded={k % 2 === 0} data={td} dataFormat={this.props.tableData.dataFormat} />
+            .map((td, index) =>
+                <Row key={index} shaded={index % 2 === 0} data={td} dataFormat={this.props.tableData.dataFormat} />
             )
+        const checkboxFilters = this.state.filter.checkboxSets.map((cf, index) => <CheckboxFilter key={index} checkboxSet={cf} checkboxChangedHandler={(checkboxSet: ICheckboxSet) => this.checkboxFilterChangedHandler(index, checkboxSet)} />)
         return (
             <React.Fragment>
                 <div css={this.tableCss}>
@@ -249,6 +291,7 @@ class Table extends React.Component<IProps, IState> {
                         filterBy={this.state.filter.dateFilterBy}
                         filterType={this.state.filter.dateFilterType}
                     />
+                    {checkboxFilters}
                 </div>
                 <div css={this.tableCss}>
                     <Header dataFormat={this.props.tableData.dataFormat} callback={this.setSort} />
