@@ -9,14 +9,14 @@ interface IProps {
 }
 
 const cbCss = css`
-    padding: 5px;
+    padding: 3px 5px;
     font-weight: 400;
     font-size: 14px;
     font-family: arial;
     border: 1px solid #bbd;
     border-radius: 5px;
     box-shadow: 0px 0px 2px #99c;
-    margin: 5px;
+    margin: 5px 5px 10px 5px;
     width: auto;
 
 

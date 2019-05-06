@@ -1,11 +1,13 @@
-/** @jsx jsx */ import { jsx } from '@emotion/core'
+/** @jsx jsx */ 
+import { jsx, css } from '@emotion/core'
 import React from 'react'
-import { css, } from '@emotion/core'
 import { ITableDataFormat } from "../Table";
 
 interface IProps {
     dataFormat: ITableDataFormat[]
     callback?: any
+    sortBy: string
+    ascending: boolean
 }
 
 const header: React.FC<IProps> = props => {
@@ -21,8 +23,13 @@ const header: React.FC<IProps> = props => {
         font-weight: 700;
         color:#333;
     `
-    const headers = props.dataFormat.map(h => {
-        if (h.header) return <div key={h.name + 'Header'} css={headerCss} style={{ flexGrow: h.weight, flexBasis:'100%' }} onClick={() => props.callback(h.variable)}>{h.name}</div>
+    const headers = props.dataFormat.map((h, index) => {
+        if (h.header) return <div
+            key={index}
+            css={headerCss}
+            style={{ flexGrow: h.weight, flexBasis: '100%' }}
+            onClick={() => props.callback(h.variable)}
+        >{h.name} {props.sortBy === h.variable ? (props.ascending ? <strong>&darr;</strong> : <strong>&uarr;</strong>) : null}</div>
         else return null
     })
 

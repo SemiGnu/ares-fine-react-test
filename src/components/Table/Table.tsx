@@ -1,4 +1,4 @@
-/** @jsx jsx */ 
+/** @jsx jsx */
 import { jsx, css } from '@emotion/core'
 import React from 'react'
 import Header from './Header/Header'
@@ -119,7 +119,6 @@ class Table extends React.Component<IProps, IState> {
 
 
     componentDidUpdate() {
-        // console.log(this.state.filter)
         if (this.state.initialized) return
         //wow
         //such elegance
@@ -132,8 +131,7 @@ class Table extends React.Component<IProps, IState> {
                         vars.push(d[df.variable])
                     } return null
                 })
-                const vals = vars.map(v => ({value: v, checked: false}))
-                // console.log(vars)
+                const vals = vars.map(v => ({ value: v, checked: false }))
                 const newSet = { name: df.name, variable: df.variable, values: vals }
                 return newSet
             })
@@ -252,6 +250,42 @@ class Table extends React.Component<IProps, IState> {
 
 
     render() {
+        let filters = []
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.searchString)) filters.push(
+            <TextFilter
+                key='text'
+                dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.searchString)}
+                filterChangedHandler={this.textFilterChangedHandler}
+                filterByChangedHandler={this.textFilterByChangedHandler}
+                filter={this.state.filter.textFilter}
+                filterBy={this.state.filter.textFilterBy}
+            />
+        )
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.number)) filters.push(
+            <NumberFilter
+                key='number'
+                dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.number)}
+                filterChangedHandler={this.numberFilterChangedHandler}
+                filterByChangedHandler={this.numberFilterByChangedHandler}
+                filterTypeChangedHandler={this.numberFilterTypeChangedHandler}
+                filter={this.state.filter.numberFilter}
+                filterBy={this.state.filter.numberFilterBy}
+                filterType={this.state.filter.numberFilterType}
+            />
+        )
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.date)) filters.push(
+            <DateFilter
+                key='date'
+                dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.date)}
+                filterChangedHandler={this.dateFilterChangedHandler}
+                filterByChangedHandler={this.dateFilterByChangedHandler}
+                filterTypeChangedHandler={this.dateFilterTypeChangedHandler}
+                filter={this.state.filter.dateFilter}
+                filterBy={this.state.filter.dateFilterBy}
+                filterType={this.state.filter.dateFilterType}
+            />
+        )
+        filters = filters.concat(this.state.filter.checkboxSets.map((cf, index) => <CheckboxFilter key={index} checkboxSet={cf} checkboxChangedHandler={(checkboxSet: ICheckboxSet) => this.checkboxFilterChangedHandler(index, checkboxSet)} />))
         const rows = this.props.tableData.data
             .filter(this.textFilter)
             .filter(this.numberFilter)
@@ -261,40 +295,13 @@ class Table extends React.Component<IProps, IState> {
             .map((td, index) =>
                 <Row key={index} shaded={index % 2 === 0} data={td} dataFormat={this.props.tableData.dataFormat} />
             )
-        const checkboxFilters = this.state.filter.checkboxSets.map((cf, index) => <CheckboxFilter key={index} checkboxSet={cf} checkboxChangedHandler={(checkboxSet: ICheckboxSet) => this.checkboxFilterChangedHandler(index, checkboxSet)} />)
         return (
             <React.Fragment>
                 <div css={this.tableCss}>
-
-                    <TextFilter
-                        dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.searchString)}
-                        filterChangedHandler={this.textFilterChangedHandler}
-                        filterByChangedHandler={this.textFilterByChangedHandler}
-                        filter={this.state.filter.textFilter}
-                        filterBy={this.state.filter.textFilterBy}
-                    />
-                    <NumberFilter
-                        dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.number)}
-                        filterChangedHandler={this.numberFilterChangedHandler}
-                        filterByChangedHandler={this.numberFilterByChangedHandler}
-                        filterTypeChangedHandler={this.numberFilterTypeChangedHandler}
-                        filter={this.state.filter.numberFilter}
-                        filterBy={this.state.filter.numberFilterBy}
-                        filterType={this.state.filter.numberFilterType}
-                    />
-                    <DateFilter
-                        dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.date)}
-                        filterChangedHandler={this.dateFilterChangedHandler}
-                        filterByChangedHandler={this.dateFilterByChangedHandler}
-                        filterTypeChangedHandler={this.dateFilterTypeChangedHandler}
-                        filter={this.state.filter.dateFilter}
-                        filterBy={this.state.filter.dateFilterBy}
-                        filterType={this.state.filter.dateFilterType}
-                    />
-                    {checkboxFilters}
+                    {filters}
                 </div>
                 <div css={this.tableCss}>
-                    <Header dataFormat={this.props.tableData.dataFormat} callback={this.setSort} />
+                    <Header dataFormat={this.props.tableData.dataFormat} callback={this.setSort} sortBy={this.state.sortBy} ascending={this.state.sortAscending} />
                     {rows}
                 </div>
             </React.Fragment>
