@@ -3,10 +3,11 @@ import axios from 'axios'
 
 interface IState {
     persons: any[]
+    cities: any[]
 }
 
 interface IProps {
-    callback: ((data: any[]) => void)
+    callback: ((persons: any[], cities: any []) => void)
 }
 
 class DataLoader extends React.Component<IProps, IState> {
@@ -14,7 +15,8 @@ class DataLoader extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props)
         this.state = {
-            persons: []
+            persons: [],
+            cities: []
         }
     }
 
@@ -34,17 +36,33 @@ class DataLoader extends React.Component<IProps, IState> {
                 }
                 return person
             }))
-            this.setState({ persons: persons })
+            this.setState({persons: persons})
+        })
+        axios.get("https://ares-fine-react-test.firebaseio.com/cities.json").then((response) => {
+            const cities: any[] = response.data.map(((p: any) => {
+                const city: any = {
+                    id: p._id,
+                    about: p.about,
+                    name: p.name,
+                    state: p.state,
+                    founded: new Date(p.founded),
+                    government: p.government,
+                    latitude: p.latitude,
+                    longitude: p.longitude
+                }
+                return city
+            }))
+            this.setState({cities: cities})
         })
     }
 
     shouldComponentUpdate() {
-        return this.state.persons.length < 1
+        return this.state.persons.length < 1 || this.state.cities.length < 1
     }
 
     componentDidUpdate() {
-        if (this.state.persons.length > 0) {
-            this.props.callback(this.state.persons)
+        if (this.state.persons.length > 0 && this.state.cities.length > 0) {
+            this.props.callback(this.state.persons, this.state.cities)
         }
     }
 

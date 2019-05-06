@@ -16,12 +16,13 @@ const header: React.FC<IProps> = props => {
         display: flex;
         flex-direction: row;
         align-content:space-evenly;
-        
+        margin:5px;
         width: 100%;
     `
     const headerCss = css`
         font-weight: 700;
         color:#333;
+        cursor:default;
     `
     const headers = props.dataFormat.map((h, index) => {
         if (h.header) return <div

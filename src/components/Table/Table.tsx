@@ -56,7 +56,6 @@ interface IState {
         dateFilter: Date | null
         checkboxSets: ICheckboxSet[]
     },
-    initialized: boolean
 }
 
 interface IProps {
@@ -87,7 +86,6 @@ class Table extends React.Component<IProps, IState> {
                 dateFilter: null,
                 checkboxSets: []
             },
-            initialized: false
         }
     }
 
@@ -116,28 +114,25 @@ class Table extends React.Component<IProps, IState> {
         }
 
     `
-
-
-    componentDidUpdate() {
-        if (this.state.initialized) return
-        //wow
-        //such elegance
-        if (this.props.tableData.dataFormat.reduce((acc, df) => (acc || (df.filterType === FilterType.checkbox)), false) && this.state.filter.checkboxSets.length < 1) {
-            const newFilter = { ...this.state.filter }
-            newFilter.checkboxSets = this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.checkbox).map(df => {
-                let vars: any[] = []
-                this.props.tableData.data.map(d => {
-                    if (!vars.includes(d[df.variable])) {
-                        vars.push(d[df.variable])
-                    } return null
+        componentDidMount() {
+            if (this.props.tableData.dataFormat.reduce((acc, df) => (acc || (df.filterType === FilterType.checkbox)), false) && this.state.filter.checkboxSets.length < 1) {
+                const newFilter = { ...this.state.filter }
+                newFilter.checkboxSets = this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.checkbox).map(df => {
+                    let vars: any[] = []
+                    this.props.tableData.data.map(d => {
+                        if (!vars.includes(d[df.variable])) {
+                            vars.push(d[df.variable])
+                        } return null
+                    })
+                    const vals = vars.map(v => ({ value: v, checked: false }))
+                    const newSet = { name: df.name, variable: df.variable, values: vals }
+                    return newSet
                 })
-                const vals = vars.map(v => ({ value: v, checked: false }))
-                const newSet = { name: df.name, variable: df.variable, values: vals }
-                return newSet
-            })
-            this.setState({ initialized: true, filter: newFilter })
-        } else this.setState({ initialized: true })
-    }
+                this.setState({ filter: newFilter })
+            }
+        }
+
+ 
 
     setSort = (variable: string) => {
         if (variable === this.state.sortBy) {
@@ -153,8 +148,12 @@ class Table extends React.Component<IProps, IState> {
     }
 
 
-    textFilter = (d: any) => d[this.state.filter.textFilterBy].toLowerCase().includes(this.state.filter.textFilter.toLowerCase())
+    textFilter = (d: any) => {
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc && (df.filterType !== FilterType.searchString) , true)) return true
+        return d[this.state.filter.textFilterBy].toLowerCase().includes(this.state.filter.textFilter.toLowerCase())
+    }
     numberFilter = (d: any) => {
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc && (df.filterType !== FilterType.number) , true)) return true
         let p
         switch (this.state.filter.numberFilterType) {
             case ComparatorType.gt:
@@ -172,6 +171,7 @@ class Table extends React.Component<IProps, IState> {
         return p
     }
     dateFilter = (d: any) => {
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc && (df.filterType !== FilterType.date) , true)) return true
         let p
         const date = d[this.state.filter.dateFilterBy]
         const compDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
@@ -251,7 +251,7 @@ class Table extends React.Component<IProps, IState> {
 
     render() {
         let filters = []
-        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.searchString)) filters.push(
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.searchString, false)) filters.push(
             <TextFilter
                 key='text'
                 dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.searchString)}
@@ -261,7 +261,7 @@ class Table extends React.Component<IProps, IState> {
                 filterBy={this.state.filter.textFilterBy}
             />
         )
-        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.number)) filters.push(
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.number, false)) filters.push(
             <NumberFilter
                 key='number'
                 dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.number)}
@@ -273,7 +273,7 @@ class Table extends React.Component<IProps, IState> {
                 filterType={this.state.filter.numberFilterType}
             />
         )
-        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.date)) filters.push(
+        if (this.props.tableData.dataFormat.reduce((acc, df) => acc || df.filterType === FilterType.date, false)) filters.push(
             <DateFilter
                 key='date'
                 dataformat={this.props.tableData.dataFormat.filter(df => df.filterType === FilterType.date)}

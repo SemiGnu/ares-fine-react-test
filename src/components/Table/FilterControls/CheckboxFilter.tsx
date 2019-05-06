@@ -41,7 +41,7 @@ const checkboxFilter: React.FC<IProps> = props => {
                 <span>{v.value}</span>
             </label>
         )
-
+        
         return (
             <div css={cbCss}>
                 <label>{props.checkboxSet.name}</label>
